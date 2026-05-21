@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英検準2級プラス・2級 要約カスタムトレーナー (iPad/PC Edition)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* iPad・PCで読みやすい文字サイズと余白の調整 */
+        .word-wrapper {
+            display: inline;
+            position: relative;
+        }
+        .word {
+            display: inline-block;
+            padding: 2px 5px;
+            margin: 3px 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 18px; /* 大きめのフォントで視認性向上 */
+            line-height: 1.6;
+        }
+        .word:hover { background-color: #e2e8f0; }
+
+        .m-keep { background-color: #bfdbfe; color: #1e3a8a; font-weight: bold; }  /* 🟦 そのまま使う */
+        .m-para { background-color: #fed7aa; color: #7c2d12; font-weight: bold; }  /* 🟧 言い換える */
+        .m-cut  { background-color: #f1f5f9; color: #94a3b8; text-decoration: line-through; } /* ✂️ けずる */
+
+        /* 段落区切り線のスタイリングをPC用に最適化 */
+        .paragraph-divider {
+            width: 100%;
+            height: 20px;
+            margin: 12px 0 24px 0;
+            border-bottom: 2px dashed #cbd5e1;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .paragraph-divider:hover { border-bottom-color: #64748b; }
+        .paragraph-divider.active {
+            border-bottom: 4px dashed #4f46e5;
+        }
+        .paragraph-divider::after {
+            content: "✂️ ここに段落の区切り線を引く";
+            position: absolute;
+            bottom: -20px;
+            left: 10px;
+            font-size: 11px;
+            color: #94a3b8;
+            transition: all 0.3s;
+        }
+        .paragraph-divider.active::after {
+            content: "ーーー [確定] 段落の区切り線 ーーー";
+            color: #4f46e5;
+            font-weight: bold;
+        }
+
+        /* 接着ピンの位置を調整 */
+        .glue-badge {
+            position: absolute;
+            top: -14px;
+            right: 0px;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            z-index: 10;
+            white-space: nowrap;
+        }
+        .badge-color-1 { background-color: #ef4444; }
+        .badge-color-2 { background-color: #3b82f6; }
+        .badge-color-3 { background-color: #10b981; }
+        .badge-color-4 { background-color: #f59e0b; }
+        .badge-color-5 { background-color: #8b5cf6; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans p-6 min-h-screen">
+
+    <!-- 🏷️ PC用ヘッダー -->
+    <header class="max-w-7xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-xs border border-slate-200/60">
+        <div class="text-left">
+            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full">英検準2級プラス／2級 要約指導システム</span>
+            <h1 class="text-2xl font-bold mt-1 text-slate-800">🧩 要約スタイリスト・プロ <span class="text-sm font-normal text-slate-500">(iPad & PC プレミアム版)</span></h1>
+        </div>
+        
+        <!-- 🔍 16題切り替えセレクトボックス（ヘッダー右側に配置してスペースを節約） -->
+        <div class="w-full md:w-80 mt-3 md:mt-0">
+            <select id="question-dropdown" onchange="changeQuestion(this.value)" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                <!-- JavaScriptで自動生成 -->
+            </select>
+        </div>
+    </header>
+
+    <!-- 📊 メインレイアウト：iPad・PCで最も見やすい横並び2カラム固定構造 -->
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- 👈 【左側：6列】問題文テキストエリア（しっかりと横幅を確保） -->
+        <div class="lg:col-span-7 space-y-4">
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">1</span>
+                        ターゲット英文（仕分けエリア）
+                    </h2>
+                    <span class="text-xs text-slate-400">※単語をクリックすると右側の入力欄に文字が入ります</span>
+                </div>
+
+                <!-- 英文表示アリーナ -->
+                <div id="text-arena" class="p-6 bg-slate-50 border border-slate-100 rounded-xl font-mono select-none space-y-4 min-h-[450px]">
+                    <!-- 動的に生成 -->
+                </div>
+            </section>
+        </div>
+
+        <!-- 👉 【右側：5列】コントロールパネル ＆ 入力 ＆ ヒント -->
+        <div class="lg:col-span-5 space-y-4">
+            
+            <!-- 🎨 ツールボックス＆接着ピン（操作パネルを一元化） -->
+            <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">🛠️ 編集ツール選択</h3>
+                <div class="grid grid-cols-5 gap-1.5">
+                    <button onclick="setTool('keep')" id="btn-keep" class="py-2.5 rounded-xl text-xs font-bold bg-blue-200 text-blue-900 border-2 border-blue-400 shadow-xs cursor-pointer">🟦 キープ</button>
+                    <button onclick="setTool('para')" id="btn-para" class="py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer">🟧 パラフレ</button>
+                    <button onclick="setTool('cut')" id="btn-cut" class="py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer">✂️ けずる</button>
+                    <button onclick="setTool('line')" id="btn-line" class="py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer">➖ 段落線</button>
+                    <button onclick="setTool('glue')" id="btn-glue" class="py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer">➕ 接着ピン</button>
+                </div>
+
+                <!-- 📌 接着ピン用数字セレクター（必要なときだけ出現） -->
+                <div id="glue-selector-section" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 hidden animate-fade-in">
+                    <p class="text-xs font-bold text-emerald-800 mb-2 text-center">関連する単語同士に同じ番号ピンを打とう：</p>
+                    <div class="flex gap-3 justify-center">
+                        <button onclick="selectGlueNumber('1')" id="num-1" class="w-9 h-9 bg-red-500 text-white font-bold rounded-full text-sm ring-4 ring-red-200 cursor-pointer">①</button>
+                        <button onclick="selectGlueNumber('2')" id="num-2" class="w-9 h-9 bg-blue-100 text-blue-700 font-bold rounded-full text-sm cursor-pointer">②</button>
+                        <button onclick="selectGlueNumber('3')" id="num-3" class="w-9 h-9 bg-emerald-100 text-emerald-700 font-bold rounded-full text-sm cursor-pointer">③</button>
+                        <button onclick="selectGlueNumber('4')" id="num-4" class="w-9 h-9 bg-amber-100 text-amber-700 font-bold rounded-full text-sm cursor-pointer">④</button>
+                        <button onclick="selectGlueNumber('5')" id="num-5" class="w-9 h-9 bg-purple-100 text-purple-700 font-bold rounded-full text-sm cursor-pointer">⑤</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ✍️ 2. オリジナル要約の入力エリア -->
+            <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">2</span>
+                        ライティング・編集
+                    </h2>
+                    <button onclick="clearSummary()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1 rounded-lg border border-slate-200 font-medium cursor-pointer">入力をクリア</button>
+                </div>
+                <p class="text-xs text-amber-700 font-medium">💡 ヒントを元に、<span class="font-bold">[ ]</span> で囲まれた表現をシンプルな表現に書き直したり、接続詞（However等）で繋ぎましょう！</p>
+                <textarea id="user-summary" oninput="calculateWords()" rows="5" class="w-full p-4 border border-slate-300 rounded-xl text-sm font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/50" placeholder="単語を選択するとここに文章が組まれます。自由に編集・パラフレーズを行ってください。"></textarea>
+            </section>
+
+            <!-- 💡 パラフレ魔法のヒント（PCで見やすいよう横幅いっぱいのカード化） -->
+            <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+                <h3 class="text-xs font-bold text-indigo-700 flex items-center gap-1 uppercase tracking-wider">💡 語数を削るパラフレーズのテクニック</h3>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-2.5 bg-emerald-50/60 rounded-xl border border-emerald-100 font-mono">
+                        <span class="font-bold text-emerald-800 block mb-1">🟢 ① 1語に圧縮</span>
+                        Many people ➔ <span class="bg-emerald-100 font-bold px-1 rounded">People</span><br>
+                        are learning ➔ <span class="bg-emerald-100 font-bold px-1 rounded">learn</span> (現在形に)
+                    </div>
+                    <div class="p-2.5 bg-blue-50/60 rounded-xl border border-blue-100 font-mono">
+                        <span class="font-bold text-blue-800 block mb-1">🔵 ② 動名詞主語に変換</span>
+                        If you use AI... ➔<br><span class="bg-blue-100 font-bold px-1 rounded">Using AI helps...</span>
+                    </div>
+                    <div class="p-2.5 bg-amber-50/60 rounded-xl border border-amber-100 font-mono">
+                        <span class="font-bold text-amber-800 block mb-1">🟧 ③ 短い接続詞の活用</span>
+                        しかし ➔ <span class="bg-amber-100 font-bold px-1 rounded">However,</span><br>
+                        さらに ➔ <span class="bg-amber-100 font-bold px-1 rounded">Also,</span>
+                    </div>
+                    <div class="p-2.5 bg-purple-50/60 rounded-xl border border-purple-100 font-mono">
+                        <span class="font-bold text-purple-800 block mb-1">🟪 ④ 具体例はバッサリ消す</span>
+                        such as... などの具体例は<span class="text-purple-700 font-bold">✂️けずる</span>のが合格の秘訣！
+                    </div>
+                </div>
+            </section>
+
+            <!-- 🏆 スクショ・提出エリア -->
+            <section class="bg-indigo-950 text-white p-5 rounded-2xl shadow-md space-y-4 text-center border-2 border-indigo-500/30">
+                <span class="text-sm font-bold block text-amber-400 tracking-widest">✨ 🏆 MY SUMMARY NOTE 🏆 ✨</span>
+
+                <div class="bg-white/10 p-4 rounded-xl text-left text-sm font-mono leading-relaxed border border-white/5 min-h-[60px]">
+                    <p id="final-preview" class="text-indigo-200 italic">（文字を入力すると、ここに提出用のプレビューがリアルタイム生成されます）</p>
+                </div>
+
+                <!-- 📊 ステータス＆ルールチェック表示 -->
+                <div class="grid grid-cols-2 gap-2 bg-indigo-900/60 py-2 px-3 rounded-xl text-xs text-left">
+                    <div class="flex items-center gap-1 border-r border-indigo-800/60">
+                        <span>📊 語数:</span>
+                        <span id="word-count-badge" class="font-bold text-amber-300 text-sm">0語</span>
+                        <span id="status-badge" class="text-slate-400 font-semibold ml-1">● 待機中</span>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <span id="punctuation-badge" class="font-bold text-slate-400 text-[11px]">⚪ 大文字・ピリオドを判定します</span>
+                    </div>
+                </div>
+
+                <button onclick="alert('📸 画面のスクショを保存しました！提出用フォルダにアップロードしましょう！')" class="w-full bg-linear-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold py-3 rounded-xl text-sm shadow-md cursor-pointer transition-all">
+                    📸 完成した解答ノートをスクショして提出する！
+                </button>
+            </section>
+        </div>
+
+    </main>
+
+    <script>
+        // ==========================================
+        // 🛠️ 16題すべての問題データバンク
+        // ==========================================
+        const questionBank = [
+            {
+                title: "① 異文化への理解 (Different Cultures)",
+                paragraphs: {
+                    'p1': "More and more people are learning about different cultures . We can meet people from other countries at school , work , or through the internet .",
+                    'p2': "People say understanding other cultures is important because it helps us live and work together peacefully . It also makes us more open-minded and respectful .",
+                    'p3': "However , there is a concern . Sometimes , people have misunderstandings because of cultural differences . If we want good communication , we need to listen carefully and learn from each other ."
+                }
+            },
+            {
+                title: "② 英語の学習 (Learning English)",
+                paragraphs: {
+                    'p1': "More and more people are learning English around the world . We can use it to talk with people from other countries and get information from the internet .",
+                    'p2': "People say learning English is helpful because it gives us more chances in school , work , and travel . It also helps us understand other cultures .",
+                    'p3': "However , there is a concern . Some people feel stressed because learning a new language takes time and effort . If we want to enjoy learning , we should find fun and easy ways to keep going ."
+                }
+            },
+            {
+                title: "③ 無農薬野菜 (Chemical-free Vegetables)",
+                paragraphs: {
+                    'p1': "More and more people are trying to grow vegetables without using chemicals . They want to make food that is safer and better for the environment .",
+                    'p2': "People say chemical-free vegetables are healthier and taste better . They also help protect insects , animals , and the soil .",
+                    'p3': "However , there is a concern . It is harder to grow crops without chemicals because insects and disease can damage them . If we want more people to try this , we need to find ways to support farmers ."
+                }
+            },
+            {
+                title: "④ 禁煙への取り組み (Stop Smoking)",
+                paragraphs: {
+                    'p1': "More and more people are trying to stop smoking . Many places now have rules that do not allow smoking inside buildings or near others .",
+                    'p2': "People say quitting smoking is good because it helps improve health and protects others from secondhand smoke . It also saves money in the long run .",
+                    'p3': "However , there is a concern . Some people find it very hard to stop because smoking can be a strong habit . If we want more people to quit , we need to give them support and good advice ."
+                }
+            },
+            {
+                title: "⑤ 少子化問題 (Low Birth Rate)",
+                paragraphs: {
+                    'p1': "More and more countries are facing a low birth rate . This means fewer babies are being born each year .",
+                    'p2': "Some people say this is a big problem because it leads to fewer workers and more old people in the future . They believe we need more support for families to have children .",
+                    'p3': "However , there is a concern . Raising children costs a lot of money and time . If people feel it is too hard , they may not want to have kids . We need to think about how to make it easier to raise a family ."
+                }
+            },
+            {
+                title: "⑥ 労働時間とバランス (Working Hours)",
+                paragraphs: {
+                    'p1': "More and more people are talking about working hours . In some countries , people work very long hours every day .",
+                    'p2': "Some people think working long hours is a good way to get more done and help the company . They believe hard work leads to success .",
+                    'p3': "However , there is a concern . If people work too much , they can get tired or sick . It also leaves less time for family or rest . We need to find a good balance between work and life ."
+                }
+            },
+            {
+                title: "⑦ 自動運転車 (Self-driving Cars)",
+                paragraphs: {
+                    'p1': "More and more people are interested in self-driving cars . These cars can drive by themselves using computers and sensors .",
+                    'p2': "People think self-driving cars are helpful because they may make driving safer and easier . We can also use travel time to do other things .",
+                    'p3': "However , there is a concern . If we always use self-driving cars , we may forget how to drive . Also , people worry about accidents if the computer makes a mistake . We need to be careful when using this new technology ."
+                }
+            },
+            {
+                title: "⑧ AIの役割と影響 (AI in Life)",
+                paragraphs: {
+                    'p1': "More and more people are using AI in many parts of life today . We can use it at home , at school , and at work to help us with different tasks .",
+                    'p2': "Many people think AI is useful because it saves time and gives us good answers quickly . It can also help with learning , driving , and even medical care .",
+                    'p3': "However , there is a concern . Some people worry that AI may take jobs from humans . If we use AI too much , people may lose chances to work or think for themselves . We need to be careful how we use it ."
+                }
+            },
+            {
+                title: "⑨ 電子書籍の普及 (E-books)",
+                paragraphs: {
+                    'p1': "More and more people are reading e-books today . We can use smartphones , tablets , or computers to read books anytime and anywhere .",
+                    'p2': "People find e-books very useful because they are easy to carry and often cheaper than paper books . We can also store many books on one device .",
+                    'p3': "However , there is a concern . Some people say that looking at a screen for a long time can hurt our eyes . Also , we may not feel the same joy as reading a real book . If we only use e-books , we might lose that special feeling ."
+                }
+            },
+            {
+                title: "⑩ 化石燃料の課題 (Fossil Fuels)",
+                paragraphs: {
+                    'p1': "More and more energy is made by using fossil fuels like coal , oil , and gas . These fuels are used in cars , factories , and power plants .",
+                    'p2': "People find fossil fuels useful because they give us strong and cheap energy . Many countries depend on them for everyday life .",
+                    'p3': "However , there is a concern . Fossil fuels create a lot of carbon dioxide , which causes global warming . If we keep using them too much , the Earth may become a harder place to live . We need to think about cleaner energy for the future ."
+                }
+            },
+            {
+                title: "⑫ 電気自動車 (Electric Cars)",
+                paragraphs: {
+                    'p1': "More and more people are starting to use electric cars . These cars do not need gasoline and can be charged with electricity .",
+                    'p2': "Many people think electric cars are better for the environment . They do not make dirty air like normal cars . Also , they can help reduce global warming .",
+                    'p3': "However , there is a concern . Electric cars are still expensive , and there are not many charging stations . If we want more people to use them , we need to make them cheaper and easier to use ."
+                }
+            },
+            {
+                title: "⑬ 地球温暖化への対策 (Global Warming)",
+                paragraphs: {
+                    'p1': "More and more people are talking about global warming . The Earth is getting warmer because of too much carbon dioxide from cars and factories .",
+                    'p2': "Many people are worried because global warming causes problems like rising sea levels and stronger storms . They say we should use clean energy and drive less to protect the Earth .",
+                    'p3': "However , there is a concern . Changing our way of life is not easy . It takes time and money to use new energy or buy electric cars . If we do not take action now , the problem may get worse in the future ."
+                }
+            },
+            {
+                title: "⑭ 海洋プラスチックごみ (Plastic Waste)",
+                paragraphs: {
+                    'p1': "More and more plastic waste is being found in the ocean . We often use plastic bags and bottles in daily life , and many of them end up in the sea .",
+                    'p2': "People are worried because plastic is dangerous for sea animals . They may eat it by mistake or get caught in it . Some people say we should use less plastic and recycle more .",
+                    'p3': "However , there is a concern . It is not easy to stop using plastic because it is cheap and useful . If we want to protect the ocean , we need to think about better ways to reduce plastic waste ."
+                }
+            },
+            {
+                title: "⑮ スマートフォンの影響 (Smartphones)",
+                paragraphs: {
+                    'p1': "More and more people are using smartphones in their daily lives . We can use them to talk to others , watch videos , and get information from the internet .",
+                    'p2': "Many people think smartphones are very useful because they help us do many things easily and quickly . We can also use apps to learn , shop , or check the news .",
+                    'p3': "However , there is a concern . Some people use smartphones too much . This can lead to less face-to-face communication or problems with sleep and health . If we are not careful , smartphones may affect our lives in a bad way ."
+                }
+            },
+            {
+                title: "⑯ 宇宙開発の是非 (Space Exploration)",
+                paragraphs: {
+                    'p1': "More and more countries are exploring space today . We can send rockets and satellites into space to learn about the moon , stars , and other planets .",
+                    'p2': "Many people think space exploration is important because it helps us understand the universe better . It can also lead to new technology and ideas that can improve our lives .",
+                    'p3': "However , there is a concern . Space exploration costs a lot of money . Some people say the money should be used to solve problems on Earth , like hunger or climate change . If we spend too much on space , we may not have enough for these important issues ."
+                }
+            }
+        ];
+
+        let activeQuestionIndex = 0;
+        let currentTool = 'keep';
+        let selectedNumber = '1'; 
+        let selectedWordsList = [];
+
+        function initDropdown() {
+            const dropdown = document.getElementById('question-dropdown');
+            dropdown.innerHTML = "";
+            questionBank.forEach((q, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.innerText = q.title;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        function changeQuestion(index) {
+            activeQuestionIndex = parseInt(index);
+            clearSummary();
+            initApp();
+        }
+
+        function initApp() {
+            const arena = document.getElementById('text-arena');
+            arena.innerHTML = ""; 
+
+            const activeQuestion = questionBank[activeQuestionIndex];
+            let uniqueIdCounter = 0;
+
+            const pKeys = Object.keys(activeQuestion.paragraphs);
+            pKeys.forEach((pKey, pIndex) => {
+                const block = document.createElement('div');
+                block.className = "paragraph-block mb-4";
+
+                const pTag = document.createElement('p');
+                pTag.className = "inline-block w-full leading-relaxed tracking-wide";
+                
+                const tokens = activeQuestion.paragraphs[pKey].split(' ');
+                tokens.forEach((token) => {
+                    if(!token) return;
+                    uniqueIdCounter++;
+                    const wordId = `w-${uniqueIdCounter}`;
+
+                    const wrapper = document.createElement('span');
+                    wrapper.className = "word-wrapper";
+
+                    const spanWord = document.createElement('span');
+                    spanWord.innerText = token + " ";
+                    spanWord.className = "word";
+                    spanWord.setAttribute('data-id', wordId);
+                    spanWord.setAttribute('data-raw', token);
+                    
+                    spanWord.onclick = function() {
+                        if(['keep', 'para', 'cut'].includes(currentTool)) {
+                            let targetClass = `m-${currentTool}`;
+                            
+                            if(spanWord.classList.contains(targetClass)) {
+                                spanWord.classList.remove(targetClass);
+                                removeWordFromTextarea(wordId);
+                            } else {
+                                spanWord.classList.remove('m-keep', 'm-para', 'm-cut');
+                                spanWord.classList.add(targetClass);
+
+                                if(currentTool === 'keep') {
+                                    addWordToTextarea(wordId, token);
+                                } else if(currentTool === 'para') {
+                                    addWordToTextarea(wordId, `[${token}]`);
+                                } else if(currentTool === 'cut') {
+                                    removeWordFromTextarea(wordId);
+                                }
+                            }
+                        }
+                        else if(currentTool === 'glue') {
+                            const existingBadge = wrapper.querySelector('.glue-badge');
+                            if(existingBadge) {
+                                wrapper.removeChild(existingBadge);
+                            } else {
+                                const badge = document.createElement('span');
+                                badge.className = `glue-badge badge-color-${selectedNumber}`;
+                                const numMap = {'1': '①', '2': '②', '3': '③', '4': '④', '5': '⑤'};
+                                badge.innerText = numMap[selectedNumber];
+                                wrapper.appendChild(badge);
+                            }
+                        }
+                    };
+
+                    wrapper.appendChild(spanWord);
+                    pTag.appendChild(wrapper);
+                });
+
+                block.appendChild(pTag);
+
+                if(pIndex < pKeys.length - 1) {
+                    const divider = document.createElement('div');
+                    divider.className = "paragraph-divider";
+                    divider.onclick = () => toggleParagraphLine(divider);
+                    block.appendChild(divider);
+                }
+
+                arena.appendChild(block);
+            });
+        }
+
+        function addWordToTextarea(id, textStr) {
+            const index = selectedWordsList.findIndex(item => item.id === id);
+            if(index !== -1) {
+                selectedWordsList[index].text = textStr;
+            } else {
+                selectedWordsList.push({ id: id, text: textStr });
+            }
+            updateTextareaByList();
+        }
+
+        function removeWordFromTextarea(id) {
+            selectedWordsList = selectedWordsList.filter(item => item.id !== id);
+            updateTextareaByList();
+        }
+
+        function updateTextareaByList() {
+            const textarea = document.getElementById('user-summary');
+            let combinedText = selectedWordsList.map(item => item.text).join(' ');
+            combinedText = combinedText.replace(/\s+\./g, '.').replace(/\s+,/g, ',');
+            textarea.value = combinedText;
+            calculateWords();
+        }
+
+        function clearSummary() {
+            document.getElementById('user-summary').value = "";
+            selectedWordsList = [];
+            document.querySelectorAll('.word').forEach(el => {
+                el.classList.remove('m-keep', 'm-para', 'm-cut');
+            });
+            calculateWords();
+        }
+
+        function setTool(tool) {
+            currentTool = tool;
+            ['keep', 'para', 'cut', 'line', 'glue'].forEach(t => {
+                document.getElementById(`btn-${t}`).className = "py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer hover:bg-slate-200 transition-all";
+            });
+            
+            const activeBtn = document.getElementById(`btn-${tool}`);
+            const glueSection = document.getElementById('glue-selector-section');
+            
+            if (tool === 'glue') {
+                glueSection.style.display = 'block';
+            } else {
+                glueSection.style.display = 'none';
+            }
+
+            if (tool === 'keep') activeBtn.className = "py-2.5 rounded-xl text-xs font-bold bg-blue-200 text-blue-900 border-2 border-blue-400 shadow-xs cursor-pointer";
+            if (tool === 'para') activeBtn.className = "py-2.5 rounded-xl text-xs font-bold bg-orange-200 text-orange-900 border-2 border-orange-400 shadow-xs cursor-pointer";
+            if (tool === 'cut')  activeBtn.className = "py-2.5 rounded-xl text-xs font-bold bg-rose-500 text-white border-2 border-rose-700 shadow-xs cursor-pointer";
+            if (tool === 'line') activeBtn.className = "py-2.5 rounded-xl text-xs font-bold bg-indigo-200 text-indigo-900 border-2 border-indigo-600 shadow-xs cursor-pointer";
+            if (tool === 'glue') activeBtn.className = "py-2.5 rounded-xl text-xs font-bold bg-emerald-200 text-emerald-900 border-2 border-emerald-600 shadow-xs cursor-pointer";
+        }
+
+        function selectGlueNumber(num) {
+            selectedNumber = num;
+            const colors = {
+                '1': { bg: 'bg-red-500', text: 'text-white', ring: 'ring-4 ring-red-200' },
+                '2': { bg: 'bg-blue-500', text: 'text-white', ring: 'ring-4 ring-blue-200' },
+                '3': { bg: 'bg-emerald-500', text: 'text-white', ring: 'ring-4 ring-emerald-200' },
+                '4': { bg: 'bg-amber-500', text: 'text-white', ring: 'ring-4 ring-amber-200' },
+                '5': { bg: 'bg-purple-500', text: 'text-white', ring: 'ring-4 ring-purple-200' }
+            };
+            const idMap = {'1': 'red', '2': 'blue', '3': 'emerald', '4': 'amber', '5': 'purple'};
+
+            for(let i=1; i<=5; i++) {
+                const btn = document.getElementById(`num-${i}`);
+                if(String(i) === num) {
+                    btn.className = `w-9 h-9 ${colors[i].bg} ${colors[i].text} font-bold rounded-full text-sm ${colors[i].ring} cursor-pointer`;
+                } else {
+                    btn.className = `w-9 h-9 bg-${idMap[i]}-100 text-${idMap[i]}-700 font-bold rounded-full text-sm cursor-pointer`;
+                }
+            }
+        }
+
+        function toggleParagraphLine(element) {
+            if(currentTool === 'line') {
+                element.classList.toggle('active');
+            }
+        }
+
+        function calculateWords() {
+            const userInput = document.getElementById('user-summary').value;
+            const preview = document.getElementById('final-preview');
+            
+            preview.innerText = userInput || "（文字を入力すると、ここに提出用のプレビューがリアルタイム生成されます）";
+            if(userInput) preview.className = "text-white font-mono text-sm leading-relaxed";
+
+            const words = userInput.trim() === "" ? 0 : userInput.trim().split(/\s+/).length;
+            document.getElementById('word-count-badge').innerText = `${words}語`;
+
+            const status = document.getElementById('status-badge');
+            if(words >= 25 && words <= 35) {
+                status.innerText = "● CLEAR!";
+                status.className = "text-emerald-400 font-bold ml-1";
+            } else if (words > 35) {
+                status.innerText = "● 多い(削ろう)";
+                status.className = "text-rose-400 font-bold ml-1";
+            } else {
+                status.innerText = "● 入力中";
+                status.className = "text-indigo-300 font-semibold ml-1";
+            }
+
+            const puncBadge = document.getElementById('punctuation-badge');
+            const trimmedInput = userInput.trim();
+
+            if (trimmedInput === "") {
+                puncBadge.innerText = "⚪ 大文字・ピリオドを判定します";
+                puncBadge.className = "font-bold text-slate-400 text-[11px]";
+            } else {
+                const hasPeriod = userInput.includes('.');
+                const cleanText = trimmedInput.replace(/[\[\]]/g, ''); 
+                const firstChar = cleanText.charAt(0);
+                const isCapitalized = /^[A-Z]/.test(firstChar);
+                
+                if (hasPeriod && isCapitalized) {
+                    puncBadge.innerText = "🟢 文頭・ピリオド OK!";
+                    puncBadge.className = "font-bold text-emerald-400 text-xs";
+                } else {
+                    puncBadge.innerText = "🟡 文頭大文字やピリオドは？";
+                    puncBadge.className = "font-bold text-amber-300 animate-pulse text-xs";
+                }
+            }
+        }
+
+        initDropdown();
+        initApp();
+    </script>
+</body>
+</html>
