@@ -8,12 +8,10 @@
     <!-- かわいい丸ゴシック ＆ 魔法学校風のおしゃれなフォントの読み込み -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Plus+Jakarta+Sans:wght@700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
-        html, body {
-            height: 100%;
-            overflow: hidden; /* 画面全体のスクロールを禁止し、アプリ感を向上 */
-            background: linear-gradient(135deg, #fff0f6 0%, #f3f0ff 50%, #e6f4ff 100%);
-            font-family: 'Zen Maru Gothic', sans-serif;
-        }
+  html, body {
+    background: linear-gradient(135deg, #fff0f6 0%, #f3f0ff 50%, #e6f4ff 100%);
+    font-family: 'Zen Maru Gothic', sans-serif;
+}
         
         /* 魔法学校風のおしゃれなタイトルフォント設定 */
         .magic-title {
@@ -109,7 +107,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #ffb7d2; }
     </style>
 </head>
-<body class="text-slate-700 p-4 flex flex-col h-screen">
+<body class="text-slate-700 p-2 sm:p-4 flex flex-col min-h-screen lg:h-screen lg:overflow-hidden"></body>
 
     <!-- 🏷️ ヘッダー -->
     <header class="w-full max-w-[1600px] mx-auto mb-3 flex flex-col sm:flex-row justify-between items-center bg-white/80 backdrop-blur-md px-6 py-2 rounded-2xl shadow-xs border border-pink-100 shrink-0">
@@ -136,10 +134,10 @@
     </header>
 
     <!-- 📊 メインレイアウト：3カラム固定構造 -->
-    <main class="w-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0 overflow-hidden">
+    <main class="w-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 lg:min-h-0 lg:overflow-hidden"></main>
         
         <!-- 👈 【左カラム：5列】① ターゲット英文 -->
-        <div class="lg:col-span-5 flex flex-col min-h-0">
+        <div class="lg:col-span-5 flex flex-col h-[350px] lg:h-auto lg:min-h-0"></div>
             <section class="bg-white/90 p-4 rounded-3xl shadow-sm border-2 border-pink-100 flex flex-col flex-1 min-h-0 relative overflow-hidden">
                 <!-- キラキラの背景デコレーション -->
                 <div class="absolute -top-6 -right-6 w-16 h-16 bg-pink-100/40 rounded-full blur-xl pointer-events-none"></div>
@@ -192,7 +190,8 @@
             </section>
 
            <!-- ✍️ ③ 秘密の呪文ノート -->
-            <section class="bg-white/90 p-4 rounded-3xl shadow-sm border-2 border-indigo-100 flex flex-col flex-1 min-h-0 space-y-2">
+         <section class="bg-white/90 p-4 rounded-3xl shadow-sm border-2 border-indigo-100 flex flex-col flex-1 min-h-[300px] lg:min-h-0 space-y-2">    
+         </section>
                 <div class="flex justify-between items-center shrink-0">
                     <h2 class="text-sm font-black text-slate-800 flex items-center gap-2">
                         <span class="bg-gradient-to-r from-pink-400 to-rose-400 text-white w-6 h-6 rounded-full inline-flex items-center justify-center text-xs font-black shadow-xs shrink-0">③</span>
@@ -229,7 +228,7 @@
         </div>
 
         <!-- 👉 【右カラム：3列】短くする魔法のレシピ -->
-        <div class="lg:col-span-3 flex flex-col min-h-0">
+        <div class="lg:col-span-3 flex flex-col h-[350px] lg:h-auto lg:min-h-0"></div>
             <section class="bg-white/90 p-4 rounded-3xl shadow-sm border-2 border-purple-100 flex flex-col flex-1 min-h-0">
                 <h3 class="text-sm font-black text-purple-600 flex items-center gap-1 tracking-wider mb-2 shrink-0">
                     呪文を短くする魔法のレシピ
