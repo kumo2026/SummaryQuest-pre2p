@@ -5,21 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>えいけん準2級プラス・2級 要約まほうトレーナー (Magical 1画面Edition)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- かわいい丸ゴシック ＆ 魔法学校風のおしゃれなフォントの読み込み -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Plus+Jakarta+Sans:wght@700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
         html, body {
             height: 100%;
-            overflow: hidden; /* PCでは画面全体のスクロールを禁止し、アプリ感を向上 */
+            overflow: hidden; /* 画面全体のスクロールを禁止し、アプリ感を向上 */
             background: linear-gradient(135deg, #fff0f6 0%, #f3f0ff 50%, #e6f4ff 100%);
             font-family: 'Zen Maru Gothic', sans-serif;
-        }
-
-        /* 📱 スマホ・タブレット（1024px未満）の時は、画面を押し込めずに自然にスクロールできるようにする魔法 */
-        @media (max-width: 1023px) {
-            html, body {
-                overflow: auto;
-                height: auto;
-            }
         }
         
         /* 魔法学校風のおしゃれなタイトルフォント設定 */
@@ -73,7 +66,7 @@
             font-size: 11px;
             color: #ff65a3;
             font-weight: bold;
-            letter-spacing: 0.05em;
+            tracking-wider: 0.05em;
         }
         .paragraph-divider.active::after {
             content: "✨  ーーー ここで段落が分かれるよ ーーー  ✨";
@@ -116,8 +109,9 @@
         ::-webkit-scrollbar-thumb:hover { background: #ffb7d2; }
     </style>
 </head>
-<body class="text-slate-700 p-2 sm:p-4 flex flex-col min-h-screen lg:h-screen lg:overflow-hidden">
+<body class="text-slate-700 p-4 flex flex-col h-screen">
 
+    <!-- 🏷️ ヘッダー -->
     <header class="w-full max-w-[1600px] mx-auto mb-3 flex flex-col sm:flex-row justify-between items-center bg-white/80 backdrop-blur-md px-6 py-2 rounded-2xl shadow-xs border border-pink-100 shrink-0">
         <div class="text-left flex items-center gap-3">
             <div>
@@ -127,21 +121,27 @@
             </div>
         </div>
         
+        <!-- 16題切り替えセレクトボックス ＆ Pre-2nd Plusロゴ右側配置 -->
         <div class="w-full sm:w-auto mt-2 sm:mt-0 flex items-center gap-3 justify-end">
             <div class="w-full sm:w-72">
                 <select id="question-dropdown" onchange="changeQuestion(this.value)" class="w-full p-2 bg-pink-50/70 border-2 border-pink-200 rounded-xl text-xs font-medium text-indigo-700 focus:outline-none focus:ring-2 focus:ring-pink-300 cursor-pointer shadow-xs">
-                    </select>
+                    <!-- JavaScriptで自動生成 -->
+                </select>
             </div>
+            <!-- 👑 準2級プラスのエンブレム（右端に配置） -->
             <span class="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-wider font-sans shadow-[0_0_8px_rgba(236,72,153,0.4)] whitespace-nowrap">
                 Pre-2nd Plus
             </span>
         </div>
     </header>
 
-    <main class="w-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 lg:min-h-0 lg:overflow-hidden">
+    <!-- 📊 メインレイアウト：3カラム固定構造 -->
+    <main class="w-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0 overflow-hidden">
         
-        <div class="lg:col-span-5 flex flex-col h-[350px] lg:h-auto lg:min-h-0">
+        <!-- 👈 【左カラム：5列】① ターゲット英文 -->
+        <div class="lg:col-span-5 flex flex-col min-h-0">
             <section class="bg-white/90 p-4 rounded-3xl shadow-sm border-2 border-pink-100 flex flex-col flex-1 min-h-0 relative overflow-hidden">
+                <!-- キラキラの背景デコレーション -->
                 <div class="absolute -top-6 -right-6 w-16 h-16 bg-pink-100/40 rounded-full blur-xl pointer-events-none"></div>
                 
                 <div class="flex justify-between items-center mb-2 shrink-0">
@@ -149,18 +149,22 @@
                         <span class="bg-gradient-to-r from-pink-400 to-rose-400 text-white w-6 h-6 rounded-full inline-flex items-center justify-center text-xs font-black shadow-xs shrink-0">①</span>
                         ターゲット英文！ここから呪文を見つけ出そう！
                     </h2>
-                    <span class="text-[10px] text-pink-400 font-black bg-pink-50 px-2 py-0.5 rounded-full whitespace-nowrap">
+                    <span class="text-[10px] text-pink-400 font-black bg-pink-50 px-2 py-0.5 rounded-full">
                         魔法の杖で単語をタップしてね
                     </span>
                 </div>
 
+                <!-- 英文表示アリーナ -->
                 <div id="text-arena" class="p-5 bg-gradient-to-b from-pink-50/30 to-purple-50/10 border border-pink-100/60 rounded-2xl select-none space-y-3 flex-1 overflow-y-auto">
-                    </div>
+                    <!-- 動的に生成 -->
+                </div>
             </section>
         </div>
 
-        <div class="lg:col-span-4 flex flex-col gap-3 h-auto lg:min-h-0">
+        <!-- 🏢 【中央カラム：4列】②えらぶ ＆ ③ライティング ＆ ④唱える -->
+        <div class="lg:col-span-4 flex flex-col gap-3 min-h-0">
             
+            <!-- 🎨 ② つかうまほうをえらぶ -->
             <section class="bg-white/90 p-3 rounded-3xl shadow-sm border-2 border-purple-100 shrink-0 space-y-2">
                 <h3 class="text-sm font-black text-slate-800 flex items-center gap-2">
                     <span class="bg-gradient-to-r from-pink-400 to-rose-400 text-white w-6 h-6 rounded-full inline-flex items-center justify-center text-xs font-black shadow-xs shrink-0">②</span>
@@ -174,6 +178,7 @@
                     <button onclick="setTool('glue')" id="btn-glue" class="py-2.5 rounded-xl text-[11px] font-black bg-slate-50 text-slate-500 cursor-pointer transform active:scale-95 transition-all">🪡つなぐ</button>
                 </div>
 
+                <!-- 📌 つなぐ用数字セレクター -->
                 <div id="glue-selector-section" class="p-1.5 rounded-xl bg-emerald-50/60 border border-emerald-200 hidden animate-fade-in">
                     <div class="flex gap-2 justify-center items-center">
                         <span class="text-[10px] font-black text-emerald-700">おなじ番号でむむすぶ：</span>
@@ -186,7 +191,8 @@
                 </div>
             </section>
 
-           <section class="bg-white/90 p-4 rounded-3xl shadow-sm border-2 border-indigo-100 flex flex-col flex-1 h-[320px] lg:h-auto lg:min-h-0 space-y-2">
+           <!-- ✍️ ③ 秘密の呪文ノート -->
+            <section class="bg-white/90 p-4 rounded-3xl shadow-sm border-2 border-indigo-100 flex flex-col flex-1 min-h-0 space-y-2">
                 <div class="flex justify-between items-center shrink-0">
                     <h2 class="text-sm font-black text-slate-800 flex items-center gap-2">
                         <span class="bg-gradient-to-r from-pink-400 to-rose-400 text-white w-6 h-6 rounded-full inline-flex items-center justify-center text-xs font-black shadow-xs shrink-0">③</span>
@@ -195,17 +201,21 @@
                     <button onclick="clearSummary()" class="text-[10px] bg-rose-50 hover:bg-rose-100 text-rose-500 px-2 py-1 rounded-lg border border-rose-200 font-black cursor-pointer transition-all">魔法をリセット</button>
                 </div>
 
+                <!-- 📊 リアルタイム・チェッカー -->
                 <div class="flex justify-center items-center bg-indigo-950 p-2.5 rounded-xl text-white shrink-0 shadow-[0_4px_12px_rgba(225,29,72,0.3)] border border-rose-400/40">
                     <div id="counter-container" class="flex items-center justify-center gap-2 font-sans w-full">
-                        </div>
+                        <!-- JavaScriptで状態（未入力・入力中）に合わせて動的に書き換えます -->
+                    </div>
                 </div>
 
                 <textarea id="user-summary" oninput="calculateWords()" class="w-full flex-1 p-3 border-2 border-indigo-100 rounded-2xl text-xs font-mono leading-relaxed focus:outline-none focus:border-indigo-400 focus:ring-3 focus:ring-indigo-100 bg-indigo-50/20 resize-none transition-all" placeholder="ここに選んだことばが届きます。自由に魔法をかけて書きなおしてね！"></textarea>
 
-                <div class="text-[11px] font-bold text-indigo-500/90 bg-indigo-50/60 border border-indigo-100 px-3 py-1.5 rounded-xl flex items-center justify-center font-sans shrink-0 text-center">
-                    <span>文のはじめは「大文字」になっているかな？<br>「 . 」や「 , 」を忘れていないかチェックしよう！</span>
-                </div>
+                <!-- ⚠️ 大文字・ピリオド・コンマのセルフチェック促しメッセージ文言（キラキラなし） -->
+<div class="text-[11px] font-bold text-indigo-500/90 bg-indigo-50/60 border border-indigo-100 px-3 py-1.5 rounded-xl flex items-center justify-center font-sans shrink-0 text-center">
+    <span>文のはじめは「大文字」になっているかな？<br>「 . 」や「 , 」を忘れていないかチェックしよう！</span>
+</div>
 
+                <!-- 👑 ④ 魔法を唱えるエリア -->
                 <div class="pt-1 shrink-0 space-y-2">
                     <h2 class="text-sm font-black text-slate-800 flex items-center gap-2">
                         <span class="bg-gradient-to-r from-pink-400 to-rose-400 text-white w-6 h-6 rounded-full inline-flex items-center justify-center text-xs font-black shadow-xs shrink-0">④</span>
@@ -218,14 +228,17 @@
             </section>
         </div>
 
-        <div class="lg:col-span-3 flex flex-col h-[380px] lg:h-auto lg:min-h-0">
+        <!-- 👉 【右カラム：3列】短くする魔法のレシピ -->
+        <div class="lg:col-span-3 flex flex-col min-h-0">
             <section class="bg-white/90 p-4 rounded-3xl shadow-sm border-2 border-purple-100 flex flex-col flex-1 min-h-0">
                 <h3 class="text-sm font-black text-purple-600 flex items-center gap-1 tracking-wider mb-2 shrink-0">
                     呪文を短くする魔法のレシピ
                 </h3>
                 
+                <!-- テクニックリスト (スクロール領域) -->
                 <div class="space-y-3 flex-1 overflow-y-auto pr-1">
                     
+                    <!-- ⭐️ Points -->
                     <div class="p-2.5 bg-orange-50/80 rounded-xl border border-orange-200 text-[11px] shadow-xs ring-4 ring-orange-500/5">
                         <span class="font-black text-orange-600 block mb-1 border-b border-orange-200 pb-0.5">Points （この３つを見つけて！）</span>
                         <ol class="list-decimal list-inside space-y-0.5 text-slate-600 font-black font-sans mt-1.5">
@@ -235,6 +248,7 @@
                         </ol>
                     </div>
 
+                    <!-- ① Shorter words! -->
                     <div class="p-2.5 bg-sky-50/70 rounded-xl border border-sky-200 text-[11px] shadow-xs">
                         <span class="font-black text-sky-700 block mb-1.5 border-b border-sky-200 pb-0.5">① Shorter words! (短く縮める)</span>
                         <div class="space-y-1 font-sans text-slate-600">
@@ -252,9 +266,316 @@
                         </div>
                     </div>
 
+                    <!-- ② Change the sentence! -->
                     <div class="p-2.5 bg-pink-50/70 rounded-xl border border-pink-200 text-[11px] shadow-xs">
                         <span class="font-black text-pink-700 block mb-1.5 border-b border-pink-200 pb-0.5">② Change the sentence! (文型チェンジ)</span>
                         <div class="space-y-1 font-sans text-slate-600 mb-2.5">
                             <p>If ➔ <span class="bg-pink-100 text-pink-800 font-bold px-1 rounded">Using</span></p>
                             <p>was used by ➔ <span class="bg-pink-100 text-pink-800 font-bold px-1 rounded">use</span></p>
-                            <p>People find ➔ <span class
+                            <p>People find ➔ <span class="bg-pink-100 text-pink-800 font-bold px-1 rounded">It is</span></p>
+                            <p>give ➔ <span class="bg-pink-100 text-pink-800 font-bold px-1 rounded">let / allow</span></p>
+                            <p>cause ➔ <span class="bg-pink-100 text-pink-800 font-bold px-1 rounded">make</span></p>
+                            <p>More and more ➔ <span class="bg-pink-100 text-pink-800 font-bold px-1 rounded">More</span></p>
+                        </div>
+                        <div class="space-y-2 border-t border-dashed border-pink-200 pt-2 font-mono text-[10px] text-slate-500 leading-tight">
+                            <p><span class="text-rose-400 font-bold">●</span> If you use AI, it helps people learn.<br>➔ <span class="text-pink-700 font-bold">Using AI helps people learn.</span></p>
+                            <p><span class="text-rose-400 font-bold">●</span> The book was read by many students.<br>➔ <span class="text-pink-700 font-bold">Many students read the book.</span></p>
+                            <p><span class="text-rose-400 font-bold">●</span> People find AI helpful.<br>➔ <span class="text-pink-700 font-bold">It is helpful.</span></p>
+                            <p><span class="text-rose-400 font-bold">●</span> Camping gives people a chance to enjoy nature.<br>➔ <span class="text-pink-700 font-bold">Camping lets people enjoy nature.</span></p>
+                            <p><span class="text-rose-400 font-bold">●</span> Online classes give students opportunities to study anywhere.<br>➔ <span class="text-pink-700 font-bold">Online classes allow students to study anywhere.</span></p>
+                            <p><span class="text-rose-400 font-bold">●</span> Too much homework causes students to feel tired.<br>➔ <span class="text-pink-700 font-bold">Too much homework makes students feel tired.</span></p>
+                            <p><span class="text-rose-400 font-bold">●</span> More and more people are riding bicycles.<br>➔ <span class="text-pink-700 font-bold">More people ride bicycles.</span></p>
+                        </div>
+                    </div>
+
+                    <!-- ③ Use short words -->
+                    <div class="p-2.5 bg-emerald-50/70 rounded-xl border border-emerald-200 text-[11px] shadow-xs">
+                        <span class="font-black text-emerald-700 block mb-1">③ Use short words (短い接続詞)</span>
+                        <div class="flex flex-wrap gap-1 font-mono font-bold text-emerald-800 mt-1">
+                            <span class="bg-emerald-100 px-1.5 py-0.5 rounded">However</span>
+                            <span class="bg-emerald-100 px-1.5 py-0.5 rounded">Also</span>
+                            <span class="bg-emerald-100 px-1.5 py-0.5 rounded">and</span>
+                            <span class="bg-emerald-100 px-1.5 py-0.5 rounded">because</span>
+                            <span class="bg-emerald-100 px-1.5 py-0.5 rounded">so</span>
+                        </div>
+                    </div>
+
+                    <!-- ④ Cut! Cut! -->
+                    <div class="p-2.5 bg-purple-50/70 rounded-xl border border-purple-200 text-[11px] shadow-xs">
+                        <span class="font-black text-purple-700 block mb-1">④ Cut! Cut!(バッサリ消す)</span>
+                        <ul class="list-disc list-inside space-y-0.5 text-slate-600">
+                            <li><span class="font-bold text-purple-700">For example / such as</span> の後ろ</li>
+                            <li>具体的な <span class="font-bold text-purple-700">数・場所・名前</span></li>
+                            <li><span class="font-bold text-purple-700">very / really / quite / a lot of</span></li>
+                            <li>細かくて長い説明（ディテール）</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <script>
+        const questionBank = [
+            {
+                title: "第1章：異文化への理解 (Different Cultures)",
+                paragraphs: {
+                    'p1': "More and more people are learning about different cultures . We can meet people from other countries at school , work , or through the internet .",
+                    'p2': "People say understanding other cultures is important because it helps us live and work together peacefully . It also makes us more open-minded and respectful .",
+                    'p3': "Huge change , there is a concern . Sometimes , people have misunderstandings because of cultural differences . If we want good communication , we need to listen carefully and learn from each other ."
+                }
+            },
+            {
+                title: "第2章：英語の学習 (Learning English)",
+                paragraphs: {
+                    'p1': "More and more people are learning English around the world . We can use it to talk with people from other countries and get information from the internet .",
+                    'p2': "People say learning English is helpful because it gives us more chances in school , work , and travel . It also helps us understand other cultures .",
+                    'p3': "However , there is a concern . Some people feel stressed because learning a new language takes time and effort . If we want to enjoy learning , we should find fun and easy ways to keep going ."
+                }
+            }
+        ];
+
+        let activeQuestionIndex = 0;
+        let currentTool = 'keep';
+        let selectedNumber = '1'; 
+        let selectedWordsList = [];
+
+        function initDropdown() {
+            const dropdown = document.getElementById('question-dropdown');
+            dropdown.innerHTML = "";
+            questionBank.forEach((q, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.innerText = q.title;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        function changeQuestion(index) {
+            activeQuestionIndex = parseInt(index);
+            clearSummary();
+            initApp();
+        }
+
+        function initApp() {
+            const arena = document.getElementById('text-arena');
+            arena.innerHTML = ""; 
+
+            const activeQuestion = questionBank[activeQuestionIndex];
+            let uniqueIdCounter = 0;
+
+            const pKeys = Object.keys(activeQuestion.paragraphs);
+            pKeys.forEach((pKey, pIndex) => {
+                const block = document.createElement('div');
+                block.className = "paragraph-block mb-2";
+
+                const pTag = document.createElement('p');
+                pTag.className = "inline-block w-full leading-relaxed tracking-wide text-justify";
+                
+                const tokens = activeQuestion.paragraphs[pKey].split(' ');
+                tokens.forEach((token) => {
+                    if(!token) return;
+                    uniqueIdCounter++;
+                    const wordId = `w-${uniqueIdCounter}`;
+
+                    const wrapper = document.createElement('span');
+                    wrapper.className = "word-wrapper";
+
+                    const spanWord = document.createElement('span');
+                    spanWord.innerText = token + " ";
+                    spanWord.className = "word";
+                    spanWord.setAttribute('data-id', wordId);
+                    spanWord.setAttribute('data-raw', token);
+                    
+                    spanWord.onclick = function() {
+                        if(['keep', 'para', 'cut'].includes(currentTool)) {
+                            let targetClass = `m-${currentTool}`;
+                            
+                            if(spanWord.classList.contains(targetClass)) {
+                                spanWord.classList.remove(targetClass);
+                                removeWordFromTextarea(wordId);
+                            } else {
+                                spanWord.classList.remove('m-keep', 'm-para', 'm-cut');
+                                spanWord.classList.add(targetClass);
+
+                                if(currentTool === 'keep') {
+                                    addWordToTextarea(wordId, token);
+                                } else if(currentTool === 'para') {
+                                    addWordToTextarea(wordId, `[${token}]`);
+                                } else if(currentTool === 'cut') {
+                                    removeWordFromTextarea(wordId);
+                                }
+                            }
+                        }
+                        else if(currentTool === 'glue') {
+                            const existingBadge = wrapper.querySelector('.glue-badge');
+                            if(existingBadge) {
+                                wrapper.removeChild(existingBadge);
+                            } else {
+                                const badge = document.createElement('span');
+                                badge.className = `glue-badge badge-color-${selectedNumber}`;
+                                const numMap = {'1': '①', '2': '②', '3': '③', '4': '④', '5': '⑤'};
+                                badge.innerText = numMap[selectedNumber];
+                                wrapper.appendChild(badge);
+                            }
+                        }
+                    };
+
+                    wrapper.appendChild(spanWord);
+                    pTag.appendChild(wrapper);
+                });
+
+                block.appendChild(pTag);
+
+                if(pIndex < pKeys.length - 1) {
+                    const divider = document.createElement('div');
+                    divider.className = "paragraph-divider";
+                    divider.onclick = () => toggleParagraphLine(divider);
+                    block.appendChild(divider);
+                }
+
+                arena.appendChild(block);
+            });
+            setTool(currentTool);
+        }
+
+        function addWordToTextarea(id, textStr) {
+            const index = selectedWordsList.findIndex(item => item.id === id);
+            if(index !== -1) {
+                selectedWordsList[index].text = textStr;
+            } else {
+                selectedWordsList.push({ id: id, text: textStr });
+            }
+            updateTextareaByList();
+        }
+
+        function removeWordFromTextarea(id) {
+            selectedWordsList = selectedWordsList.filter(item => item.id !== id);
+            updateTextareaByList();
+        }
+
+        function updateTextareaByList() {
+            const textarea = document.getElementById('user-summary');
+            let combinedText = selectedWordsList.map(item => item.text).join(' ');
+            combinedText = combinedText.replace(/\s+\./g, '.').replace(/\s+,/g, ',');
+            textarea.value = combinedText;
+            calculateWords();
+        }
+
+        function clearSummary() {
+            document.getElementById('user-summary').value = "";
+            selectedWordsList = [];
+            document.querySelectorAll('.word').forEach(el => {
+                el.classList.remove('m-keep', 'm-para', 'm-cut');
+            });
+            calculateWords();
+        }
+
+        function setTool(tool) {
+            currentTool = tool;
+            ['keep', 'para', 'cut', 'line', 'glue'].forEach(t => {
+                document.getElementById(`btn-${t}`).className = "py-2.5 rounded-xl text-[11px] font-black bg-slate-50 text-slate-500 cursor-pointer hover:bg-pink-50 hover:text-pink-600 transition-all transform active:scale-95";
+            });
+            
+            const activeBtn = document.getElementById(`btn-${tool}`);
+            const glueSection = document.getElementById('glue-selector-section');
+            
+            if (tool === 'glue') {
+                glueSection.style.display = 'block';
+            } else {
+                glueSection.style.display = 'none';
+            }
+
+            if (tool === 'keep') activeBtn.className = "py-2.5 rounded-xl text-[11px] font-black bg-sky-100 text-sky-700 border-2 border-sky-300 shadow-xs cursor-pointer scale-105";
+            if (tool === 'para') activeBtn.className = "py-2.5 rounded-xl text-[11px] font-black bg-pink-100 text-pink-700 border-2 border-pink-300 shadow-xs cursor-pointer scale-105";
+            if (tool === 'cut')  activeBtn.className = "py-2.5 rounded-xl text-[11px] font-black bg-rose-400 text-white border-2 border-rose-500 shadow-xs cursor-pointer scale-105";
+            if (tool === 'line') activeBtn.className = "py-2.5 rounded-xl text-[11px] font-black bg-purple-100 text-purple-700 border-2 border-purple-300 shadow-xs cursor-pointer scale-105";
+            if (tool === 'glue') activeBtn.className = "py-2.5 rounded-xl text-[11px] font-black bg-emerald-100 text-emerald-700 border-2 border-emerald-300 shadow-xs cursor-pointer scale-105";
+        }
+
+        function selectGlueNumber(num) {
+            selectedNumber = num;
+            const colors = {
+                '1': { bg: 'bg-red-400', text: 'text-white', ring: 'ring-3 ring-red-200' },
+                '2': { bg: 'bg-blue-400', text: 'text-white', ring: 'ring-3 ring-blue-200' },
+                '3': { bg: 'bg-emerald-400', text: 'text-white', ring: 'ring-3 ring-emerald-200' },
+                '4': { bg: 'bg-amber-400', text: 'text-white', ring: 'ring-3 ring-amber-200' },
+                '5': { bg: 'bg-purple-400', text: 'text-white', ring: 'ring-3 ring-purple-200' }
+            };
+            const idMap = {'1': 'red', '2': 'blue', '3': 'emerald', '4': 'amber', '5': 'purple'};
+
+            for(let i=1; i<=5; i++) {
+                const btn = document.getElementById(`num-${i}`);
+                if(String(i) === num) {
+                    btn.className = `w-6 h-6 ${colors[i].bg} ${colors[i].text} font-bold rounded-full text-xs ${colors[i].ring} cursor-pointer scale-110`;
+                } else {
+                    btn.className = `w-6 h-6 bg-${idMap[i]}-100 text-${idMap[i]}-600 font-bold rounded-full text-xs cursor-pointer hover:bg-${idMap[i]}-200`;
+                }
+            }
+        }
+
+        function toggleParagraphLine(element) {
+            if(currentTool === 'line') {
+                element.classList.toggle('active');
+            }
+        }
+
+       function calculateWords() {
+    const userInput = document.getElementById('user-summary').value;
+    const container = document.getElementById('counter-container');
+    
+    if (userInput.trim() === "") {
+        // 入力がない時：ワクワクする最初の一歩を応援！
+        container.innerHTML = `
+            <div class="flex items-center gap-1.5 justify-center w-full text-center">
+                <span class="animate-bounce">🪄</span>
+                <span class="font-black text-xs text-pink-200 tracking-wide">
+                    きみの英語の呪文をまってるよ！まずは1語から書いてみよう！
+                </span>
+            </div>
+        `;
+        return;
+    }
+
+    // 語数をカウント
+    const words = userInput.trim().split(/\s+/).length;
+    
+    // 条件分岐で出す文言を切り替え
+    let statusText = "";
+    let statusClass = "";
+
+    if (words <= 24) {
+        statusText = `（ 魔法パワーチャージ！ あと ${25 - words}語でパーフェクト！ ）`;
+        statusClass = "text-sky-300 font-bold text-xs";
+    } else if (words >= 25 && words <= 35) {
+        statusText = "PERFECT! 魔法の呪文が完成！";
+        statusClass = "text-emerald-300 font-black animate-pulse text-xs";
+    } else {
+        statusText = `（ 呪文パワー大ばくはつ！ あと ${words - 35}語 減らしてみよう ）`;
+        statusClass = "text-rose-200 font-bold text-xs";
+    }
+
+    // カウンターボックス内のHTMLをバランスよく配置
+    container.innerHTML = `
+        <div class="flex items-center gap-2 justify-center w-full">
+            <span>💎</span>
+            <span class="font-black text-pink-300 text-base tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">${words} 語</span>
+            <span class="${statusClass} drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">${statusText}</span>
+        </div>
+    `;
+}
+// ページが読み込まれた時、最初から「呪文をまってるよ！」を表示する
+window.addEventListener('DOMContentLoaded', calculateWords);
+
+        function triggerMagicAlert() {
+            alert("大成功🎉\n君のノートが立派な魔法の書になったよ！\nお家の人に見せて奇跡の瞬間を一緒にお祝いしてもらおう🥂");
+        }
+
+        initDropdown();
+        initApp();
+    </script>
+</body>
+</html>
+
