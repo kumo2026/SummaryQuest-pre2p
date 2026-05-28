@@ -191,7 +191,7 @@
                         </div>
                 </div>
 
-                <textarea id="user-summary" oninput="calculateWords()" class="w-full flex-1 min-h-[120px] lg:min-h-0 p-3 border-2 border-indigo-100 rounded-2xl text-xs font-mono leading-relaxed focus:outline-none focus:border-indigo-400 focus:ring-3 focus:ring-indigo-100 bg-indigo-50/20 resize-none transition-all" placeholder="ここに選んだことばが届きます。自由に魔法をかけて書きなおしてね！"></textarea>
+                <textarea id="user-summary" oninput="calculateWords()"onkeydown="isManuallyEdited = true"class="w-full flex-1 min-h-[120px] lg:min-h-0 p-3 border-2 border-indigo-100 rounded-2xl text-xs font-mono leading-relaxed focus:outline-none focus:border-indigo-400 focus:ring-3 focus:ring-indigo-100 bg-indigo-50/20 resize-none transition-all" placeholder="ここに選んだことばが届きます。自由に魔法をかけて書きなおしてね！"></textarea>
 
                 <div class="text-[11px] font-bold text-indigo-500/90 bg-indigo-50/60 border border-indigo-100 px-3 py-1.5 rounded-xl flex items-center justify-center font-sans shrink-0 text-center">
                     <span>文のはじめは「大文字」になっているかな？<br>「 . 」や「 , 」を忘れていないかチェックしよう！</span>
@@ -229,8 +229,7 @@
                     <div class="p-2.5 bg-sky-50/70 rounded-xl border border-sky-200 text-[11px] shadow-xs">
                         <span class="font-black text-sky-700 block mb-1.5 border-b border-sky-200 pb-0.5">① Shorter words! (短く縮める)</span>
                         <div class="space-y-1 font-sans text-slate-600">
-                            <p class="tracking-tight"><span class="line-through text-slate-400">More and more people</span> ➔ <span class="bg-sky-100 text-sky-800 font-bold px-1 rounded">More people</span></p>
-                            <p class="tracking-tight"><span class="line-through text-slate-400">More and more people</span> ➔ <span class="bg-sky-100 text-sky-800 font-bold px-1 rounded">Many people</span></p>
+                            <p class="tracking-tight"><span class="line-through text-slate-400">More and more people</span> ➔ <span class="bg-sky-100 text-sky-800 font-bold px-1 rounded">More people/Many people</span></p>
                             <p class="tracking-tight"><span class="line-through text-slate-400">some / many students</span> ➔ <span class="bg-sky-100 text-sky-800 font-bold px-1 rounded">students</span></p>
                             <p class="tracking-tight"><span class="line-through text-slate-400">at home and at school</span> ➔ <span class="bg-sky-100 text-sky-800 font-bold px-1 rounded">anywhere</span></p>
                             <p class="tracking-tight"><span class="line-through text-slate-400">whenever they want</span> ➔ <span class="bg-sky-100 text-sky-800 font-bold px-1 rounded">anytime</span></p>
@@ -506,6 +505,7 @@
         let activeQuestionIndex = 0;
         let currentTool = 'keep';
         let selectedNumber = '1'; 
+        let isManuallyEdited = false;
         
         function initDropdown() {
             const dropdown = document.getElementById('question-dropdown');
@@ -643,6 +643,10 @@
   function removeWordFromNotebook(token) {
             const textarea = document.getElementById('user-summary');
             let currentText = textarea.value;
+            // 💡 子供がキーボードで編集を始めた後は、書いた文字が消えないようにガードします
+            if (isManuallyEdited) {
+                return; 
+            }
 
             // 1. 画面上で現在「キープ」または「かえる」になっているこの単語の数をカウント
             const activeOnScreen = countActiveWordsOnScreen(token);
@@ -678,6 +682,7 @@
 
         function clearSummary() {
             document.getElementById('user-summary').value = "";
+            isManuallyEdited = false;
             document.querySelectorAll('.word').forEach(el => {
                 el.classList.remove('m-keep', 'm-para', 'm-cut');
             });
@@ -703,19 +708,19 @@
         // 💡 ノート（テキストエリア）内に現在存在する同一単語の数を数える関数
         function countWordsInNotebook(token) {
             const textarea = document.getElementById('user-summary');
-            const text = textarea.value;
+            let text = textarea.value;
+
+            // 💡 カッコ付きの [word] を一時的にプレーンな単語に統一し、2重カウントを防ぎます
+            text = text.replace(/\[/g, '').replace(/\]/g, '');
 
             const escapedToken = token.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
             const hasWordChar = /\w/.test(token);
             const boundary = hasWordChar ? '\\b' : '';
 
-            const regexRaw = new RegExp(`${boundary}${escapedToken}${boundary}`, 'g');
-            const regexPara = new RegExp(`\\[${escapedToken}\\]`, 'g');
+            const regex = new RegExp(`${boundary}${escapedToken}${boundary}`, 'g');
+            const matches = text.match(regex) || [];
 
-            const matchesRaw = text.match(regexRaw) || [];
-            const matchesPara = text.match(regexPara) || [];
-
-            return matchesRaw.length + matchesPara.length;
+            return matches.length;
         }
 
         function setTool(tool) {
@@ -820,4 +825,5 @@
     </script>
 </body>
 </html>
+
 
